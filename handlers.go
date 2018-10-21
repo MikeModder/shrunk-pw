@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/teris-io/shortid"
 )
 
 // "/"
@@ -30,7 +32,11 @@ func gotoURLHandler(w http.ResponseWriter, r *http.Request) {
 // Response:
 //	{ success: bool, msg: "failed <reason>/success", short: "<short url>" }
 func shortenHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "shorten")
+	query := r.URL.Query()
+	long := query.Get("url")
+
+	newShort, _ := shortid.Generate()
+	saveURL(newShort, long)
 }
 
 // "/unshorten?url=<short>"
@@ -38,5 +44,20 @@ func shortenHandler(w http.ResponseWriter, r *http.Request) {
 // Response:
 //	{ short: "<short url>", full: "<original url>" }
 func unshortenHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "unshorten")
+	query := r.URL.Query()
+	short := query.Get("url")
+
+	if hasFullURL(short) {
+		json.NewEncoder(w).Encode(unshortenedResp{
+			Success: true,
+			Short:   short,
+			Full:    getFullURL(short),
+		})
+	} else {
+		json.NewEncoder(w).Encode(unshortenedResp{
+			Success: false,
+			Short:   short,
+		})
+	}
+	return
 }
