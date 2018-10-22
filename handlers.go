@@ -12,7 +12,7 @@ import (
 // "/"
 // Show homepage
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "index")
+	http.ServeFile(w, r, "templates/index.html")
 }
 
 // "/{shortid}"
@@ -35,8 +35,27 @@ func shortenHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	long := query.Get("url")
 
+	if long == "" {
+		json.NewEncoder(w).Encode(shortenResp{
+			Success: false,
+			Message: "Failed to create short URL! No URL given!",
+		})
+		return
+	}
+
 	newShort, _ := shortid.Generate()
-	saveURL(newShort, long)
+	if saveURL(newShort, long) {
+		json.NewEncoder(w).Encode(shortenResp{
+			Success: true,
+			Message: "Success",
+			Short:   fmt.Sprintf("%s/%s", appConfig.Domain, newShort),
+		})
+	} else {
+		json.NewEncoder(w).Encode(shortenResp{
+			Success: false,
+			Message: "Failed to create short URL!",
+		})
+	}
 }
 
 // "/unshorten?url=<short>"
@@ -47,15 +66,25 @@ func unshortenHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	short := query.Get("url")
 
+	if short == "" {
+		json.NewEncoder(w).Encode(unshortenedResp{
+			Success: false,
+			Message: "Failed to find full URL! No URL given!",
+		})
+		return
+	}
+
 	if hasFullURL(short) {
 		json.NewEncoder(w).Encode(unshortenedResp{
 			Success: true,
 			Short:   short,
+			Message: "Success",
 			Full:    getFullURL(short),
 		})
 	} else {
 		json.NewEncoder(w).Encode(unshortenedResp{
 			Success: false,
+			Message: "Failed to get full URL! Is that a valid short code?",
 			Short:   short,
 		})
 	}

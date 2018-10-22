@@ -17,9 +17,9 @@ var (
 
 func setupDB() {
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       0,
+		Addr:     appConfig.RedisURL,
+		Password: appConfig.RedisPassword,
+		DB:       appConfig.RedisDB,
 	})
 
 	pong, err := redisClient.Ping().Result()

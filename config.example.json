@@ -1,0 +1,7 @@
+{
+    "domain": "http://localhost:8080",
+    "port": 8080,
+    "redis_url": "localhost:6379",
+    "redis_port": 0,
+    "redis_password": ""
+}

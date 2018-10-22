@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Easy URL Shortener</title>
+</head>
+<body>
+    <script>
+        function doShorten() {
+            let fullUrl = document.getElementById("urlinput").value;
+            fetch(`/shorten?url=${fullUrl}`)
+                .then(r => {
+                    r.json()
+                        .then(json => {
+                            console.log(r, json);
+                            document.getElementById("shortened").innerText = json.short;
+                        });
+                })
+                .catch(e => {
+                    alert(`Failed to shorten:\n${e}`);
+                })
+        }
+
+        function expand() {
+            let shortCode = document.getElementById("shortinput").value;
+            fetch(`/unshorten?url=${shortCode}`)
+                .then(r => {
+                    r.json()
+                        .then(json => {
+                            console.log(r, json);
+                            document.getElementById("expanded").innerText = json.full;
+                        });
+                })
+                .catch(e => {
+                    alert(`Failed to unshorten:\n${e}`);
+                })
+        }
+    </script>
+    <!-- shorten a URL here -->
+    <div class="shorten">
+        <input type="text" name="url" id="urlinput"><button onclick="doShorten()">Shorten</button>
+        <div id="shortened"></div>
+    </div>
+    <br><br>
+    <!-- expand a URL here -->
+    <div class="expand">
+        <input type="text" name="short" id="shortinput"><button onclick="expand()">Expand</button>
+        <div id="expanded"></div>
+    </div>
+    <br><br>
+    <!-- about -->
+    <div class="about">
+        <h3>About</h3>
+        This is a small URL shortening app written using Golang and Redis. Source is available <a href="https://github.com/MikeModder/shrunk-pw">right here.</a>
+    </div>
+</body>
+</html>
