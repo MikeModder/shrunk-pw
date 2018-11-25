@@ -20,8 +20,7 @@ func init() {
 	if e != nil {
 		log.Fatalf("[error] failed to open config.json: %s\n", e.Error())
 	}
-	cfgParser := json.NewDecoder(cfgFile)
-	e = cfgParser.Decode(&appConfig)
+	e = json.NewDecoder(cfgFile).Decode(&appConfig)
 	if e != nil {
 		log.Fatalf("[error] failed to open config.json: %s\n", e.Error())
 	}
